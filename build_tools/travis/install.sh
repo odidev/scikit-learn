@@ -36,11 +36,19 @@ ccache --max-size 100M --show-stats
 deactivate || :
 
 # Install miniconda
-fname=Miniconda3-latest-Linux-x86_64.sh
-wget https://repo.continuum.io/miniconda/$fname -O miniconda.sh
-MINICONDA_PATH=$HOME/miniconda
-chmod +x miniconda.sh && ./miniconda.sh -b -p $MINICONDA_PATH
-export PATH=$MINICONDA_PATH/bin:$PATH
+if [ `uname -m` == 'aarch64' ]; then
+    wget -q "https://github.com/conda-forge/miniforge/releases/download/4.8.2-1/Miniforge3-4.8.2-1-Linux-aarch64.sh"  -O miniconda.sh
+    chmod +x miniconda.sh
+    ./miniconda.sh -b -p $HOME/miniconda3
+    export PATH=$HOME/miniconda3/bin:$PATH
+    conda config --set always_yes yes;
+else
+    fname=Miniconda3-latest-Linux-x86_64.sh
+    wget https://repo.continuum.io/miniconda/$fname -O miniconda.sh
+    MINICONDA_PATH=$HOME/miniconda
+    chmod +x miniconda.sh && ./miniconda.sh -b -p $MINICONDA_PATH
+    export PATH=$MINICONDA_PATH/bin:$PATH
+fi
 conda update --yes conda
 
 # Create environment and install dependencies
@@ -48,15 +56,26 @@ conda create -n testenv --yes python=3.7
 source activate testenv
 
 pip install --upgrade pip setuptools
-echo "Installing numpy and scipy master wheels"
-dev_anaconda_url=https://pypi.anaconda.org/scipy-wheels-nightly/simple
-pip install --pre --upgrade --timeout=60 --extra-index $dev_anaconda_url numpy scipy pandas
-pip install --pre cython
-echo "Installing joblib master"
-pip install https://github.com/joblib/joblib/archive/master.zip
-echo "Installing pillow master"
-pip install https://github.com/python-pillow/Pillow/archive/master.zip
-pip install $(get_dep pytest $PYTEST_VERSION) pytest-cov
+if [ `uname -m` == 'aarch64' ]; then
+    echo "Installing numpy and scipy master wheels"
+    conda install numpy scipy pandas
+    conda install cython
+    conda install pillow pytest pytest-cov
+    pip install https://github.com/joblib/joblib/archive/master.zip
+    pip install pytest-xdist
+else    
+    echo "Installing numpy and scipy master wheels"
+    dev_anaconda_url=https://pypi.anaconda.org/scipy-wheels-nightly/simple
+    pip install --pre --upgrade --timeout=60 --extra-index $dev_anaconda_url numpy scipy pandas
+    # Cython nightly build should be still fetched from the Rackspace container
+    dev_rackspace_url=https://7933911d6844c6c53a7d-47bd50c35cd79bd838daf386af554a83.ssl.cf2.rackcdn.com
+    pip install --pre --upgrade --timeout=60 -f $dev_rackspace_url cython
+    echo "Installing joblib master"
+    pip install https://github.com/joblib/joblib/archive/master.zip
+    echo "Installing pillow master"
+    pip install https://github.com/python-pillow/Pillow/archive/master.zip
+    pip install $(get_dep pytest $PYTEST_VERSION) pytest-cov
+fi
 
 # Build scikit-learn in the install.sh script to collapse the verbose
 # build output in the travis output when it succeeds.
