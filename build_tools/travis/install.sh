@@ -61,9 +61,9 @@ if [ `uname -m` == 'aarch64' ]; then
     conda install numpy scipy pandas
     conda install cython
     conda install pillow pytest pytest-cov
-    conda install numpydoc pyamg matplotlib lightgbm
+    conda install numpydoc matplotlib
     pip install https://github.com/joblib/joblib/archive/master.zip
-    pip install pytest-xdist
+    pip install pytest-xdist pyamg lightgbm
 else    
     echo "Installing numpy and scipy master wheels"
     dev_anaconda_url=https://pypi.anaconda.org/scipy-wheels-nightly/simple
