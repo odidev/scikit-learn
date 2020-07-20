@@ -61,9 +61,9 @@ if [ `uname -m` == 'aarch64' ]; then
     conda install numpy scipy pandas
     conda install cython
     conda install pillow pytest pytest-cov
-    conda install numpydoc matplotlib
+    conda install numpydoc matplotlib scikit-learn
     pip install https://github.com/joblib/joblib/archive/master.zip
-    pip install pytest-xdist pyamg lightgbm
+    pip install pytest-xdist
 else    
     echo "Installing numpy and scipy master wheels"
     dev_anaconda_url=https://pypi.anaconda.org/scipy-wheels-nightly/simple
@@ -76,7 +76,7 @@ else
     echo "Installing pillow master"
     pip install https://github.com/python-pillow/Pillow/archive/master.zip
     pip install $(get_dep pytest $PYTEST_VERSION) pytest-cov
-    pip install numpydoc pyamg matplotlib lightgbm
+    pip install numpydoc matplotlib
 fi
 
 # Build scikit-learn in the install.sh script to collapse the verbose
