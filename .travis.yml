@@ -26,6 +26,7 @@ matrix:
       env: CHECK_WARNINGS="true"
       
     - python: 3.7
+      arch: arm64
       env: CHECK_WARNINGS="true"
     
     # As above but build scikit-learn with Intel C compiler (ICC).
